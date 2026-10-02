@@ -1,16 +1,4 @@
-/**
- * script.js - Lógica do front-end com autenticação por token
- *
- * Cada usuário faz login com seu próprio token do Jira.
- * O token é salvo no localStorage do navegador (não no servidor).
- * Todas as requisições enviam o token no header X-Jira-Token.
- */
 
-// ============================================================
-// MODO NOTURNO (DARK MODE)
-// ============================================================
-
-// Variavel global para guardar dados do ultimo grafico (para recriar ao trocar modo)
 var ultimoDadosGraficos = null;
 
 // Variavel global para guardar os dados da ultima auditoria (para publicar no Confluence)
@@ -234,7 +222,13 @@ async function fetchComToken(url, options = {}) {
 function mostrarStatus(elementId, mensagem, tipo) {
     const el = document.getElementById(elementId);
     if (!el) return;
-    el.textContent = mensagem;
+    // Mensagens com HTML (ex.: link para a página do Confluence) são renderizadas;
+    // as demais são exibidas como texto puro (evita injeção de HTML acidental)
+    if (/<[a-z][^>]*>/i.test(mensagem)) {
+        el.innerHTML = mensagem;
+    } else {
+        el.textContent = mensagem;
+    }
     el.className = "status-msg show " + tipo;
 }
 
@@ -646,16 +640,12 @@ async function executarAuditoria() {
     // Grafico: Por Responsavel
     criarGraficoPizza("chart-responsavel", stats.por_responsavel, paletaCores, data.total);
 
-    let htmlTabela = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;"><h3 style="margin:0;">Dados Coletados (' + data.total + ' issues)</h3><div style="display:flex; gap:8px;"><button onclick="baixarExcel()" class="btn btn-success btn-sm"><span style="margin-right:5px;">⬇</span> Baixar Excel</button><button onclick="abrirModalConfluence()" class="btn btn-primary btn-sm"><span style="margin-right:5px;">📄</span> Publicar no Confluence</button></div></div><div style="overflow-x:auto;"><table class="tabela"><thead><tr><th>Key</th><th>Resumo</th><th>Descrição</th><th>Tipo</th><th>Status</th><th>Prioridade</th><th>Responsável</th><th>Resolução</th><th>Data Criação</th><th>Data Resolução</th></tr></thead><tbody>';
-    data.dados.forEach(d => {
-        // Limitar descrição a 100 caracteres na tabela (mostrar completa no CSV)
-        let descCurta = escapeHtml(d["Descrição"] || "");
-        if (descCurta.length > 100) {
-            descCurta = descCurta.substring(0, 100) + '...';
-        }
-        htmlTabela += '<tr><td><strong>' + escapeHtml(d.Key) + '</strong></td><td>' + escapeHtml(d.Resumo) + '</td><td style="max-width:300px; white-space:pre-wrap; font-size:0.85em; color:#555;">' + (descCurta || '<em style="color:#aaa;">Sem descrição</em>') + '</td><td>' + escapeHtml(d.Tipo) + '</td><td>' + badgeStatus(d.Status) + '</td><td>' + escapeHtml(d.Prioridade) + '</td><td>' + escapeHtml(d["Responsável"]) + '</td><td>' + escapeHtml(d["Resolução"]) + '</td><td>' + escapeHtml(d["Data Criação"]) + '</td><td>' + escapeHtml(d["Data Resolução"]) + '</td></tr>';
-    });
-    htmlTabela += '</tbody></table></div>';
+    let htmlTabela = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;"><h3 style="margin:0;">Dados Coletados (' + data.total + ' issues)</h3><div style="display:flex; gap:8px;"><button onclick="baixarExcel()" class="btn btn-success btn-sm"><span style="margin-right:5px;">⬇</span> Baixar Excel</button></div></div><div style="overflow-x:auto;"><table class="tabela"><thead><tr><th>Key</th><th>Resumo</th><th>Descrição</th><th>Tipo</th><th>Status</th><th>Prioridade</th><th>Responsável</th><th>Resolução</th><th>Data Criação</th><th>Data Resolução</th></tr></thead><tbody id="tbody-issues"></tbody></table></div><div id="paginacao-issues"></div>';
+    // Botão destacado: Publicar no Confluence (no final, bem visível)
+    htmlTabela += '<div style="margin-top:25px; padding:22px; text-align:center; background:linear-gradient(135deg,#e8f4f8,#f0fafc); border:2px dashed #006d77; border-radius:12px;">';
+    htmlTabela += '<button onclick="abrirModalConfluence()" class="btn btn-primary" style="padding:14px 36px; font-size:1.05em; font-weight:700; background:linear-gradient(135deg,#1b4965,#006d77); border:none; border-radius:10px; color:#fff; cursor:pointer; box-shadow:0 4px 12px rgba(0,109,119,0.35);">📄 Publicar Auditoria no Confluence</button>';
+    htmlTabela += '<p style="margin:10px 0 0 0; font-size:0.85em; color:#567;">Publica esta auditoria como página no Confluence (espaço BXBNG)</p>';
+    htmlTabela += '</div>';
     // ===== TABELA DE GENERAL THROUGHPUT =====
     // Pegar datas do filtro para calcular o periodo
     const dataResInicio = document.getElementById("filtro-res-data-inicio").value;
@@ -918,6 +908,9 @@ async function executarAuditoria() {
     htmlCycleTime += '</div>';
 
     document.getElementById("area-dados-auditoria").innerHTML = htmlThroughput + htmlSubTaskStory + htmlLeadTime + htmlRunChart + htmlCycleTime + htmlTabela;
+
+    // Renderizar a primeira página da tabela de issues (paginação de 10 em 10)
+    renderizarPaginaIssues(1);
 
     // ===== HISTOGRAMA DE THROUGHPUT =====
     // 1. Contar quantas issues foram resolvidas por dia
@@ -1219,6 +1212,68 @@ async function baixarExcel() {
 }
 
 // ============================================================
+// PAGINAÇÃO DA TABELA DE ISSUES (10 por página)
+// ============================================================
+
+let paginaAtualIssues = 1;
+const ISSUES_POR_PAGINA = 5;
+
+function renderizarPaginaIssues(pagina) {
+    const dados = (ultimoDadosAuditoria && ultimoDadosAuditoria.dados) ? ultimoDadosAuditoria.dados : [];
+    const tbody = document.getElementById("tbody-issues");
+    const divPag = document.getElementById("paginacao-issues");
+    if (!tbody || !divPag || !dados.length) return;
+
+    const totalPaginas = Math.ceil(dados.length / ISSUES_POR_PAGINA);
+    if (pagina < 1) pagina = 1;
+    if (pagina > totalPaginas) pagina = totalPaginas;
+    paginaAtualIssues = pagina;
+
+    const inicio = (pagina - 1) * ISSUES_POR_PAGINA;
+    const fim = Math.min(inicio + ISSUES_POR_PAGINA, dados.length);
+    const paginaDados = dados.slice(inicio, fim);
+
+    // Linhas da página atual
+    let linhas = "";
+    paginaDados.forEach(d => {
+        // Limitar descrição a 100 caracteres na tabela (mostrar completa no CSV)
+        let descCurta = escapeHtml(d["Descrição"] || "");
+        if (descCurta.length > 100) {
+            descCurta = descCurta.substring(0, 100) + '...';
+        }
+        linhas += '<tr><td><strong>' + escapeHtml(d.Key) + '</strong></td><td>' + escapeHtml(d.Resumo) + '</td><td style="max-width:300px; white-space:pre-wrap; font-size:0.85em; color:#555;">' + (descCurta || '<em style="color:#aaa;">Sem descrição</em>') + '</td><td>' + escapeHtml(d.Tipo) + '</td><td>' + badgeStatus(d.Status) + '</td><td>' + escapeHtml(d.Prioridade) + '</td><td>' + escapeHtml(d["Responsável"]) + '</td><td>' + escapeHtml(d["Resolução"]) + '</td><td>' + escapeHtml(d["Data Criação"]) + '</td><td>' + escapeHtml(d["Data Resolução"]) + '</td></tr>';
+    });
+    tbody.innerHTML = linhas;
+
+    // Controles de paginação
+    let controles = '<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-top:12px;">';
+    controles += '<span style="font-size:0.85em; color:#666;">Mostrando ' + (inicio + 1) + '–' + fim + ' de ' + dados.length + ' issues</span>';
+    controles += '<div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">';
+
+    const estiloDesabilitado = 'padding:6px 12px; opacity:0.5; cursor:not-allowed;';
+    const estiloAtivo = 'padding:6px 12px;';
+
+    controles += '<button onclick="renderizarPaginaIssues(' + (pagina - 1) + ')" class="btn btn-sm" style="' + (pagina === 1 ? estiloDesabilitado : estiloAtivo) + '"' + (pagina === 1 ? ' disabled' : '') + '>← Anterior</button>';
+
+    // Números das páginas (janela de até 5 em torno da atual)
+    let iniNum = Math.max(1, pagina - 2);
+    let fimNum = Math.min(totalPaginas, iniNum + 4);
+    iniNum = Math.max(1, fimNum - 4);
+    for (let p = iniNum; p <= fimNum; p++) {
+        if (p === pagina) {
+            controles += '<button disabled class="btn btn-sm btn-primary" style="padding:6px 12px;">' + p + '</button>';
+        } else {
+            controles += '<button onclick="renderizarPaginaIssues(' + p + ')" class="btn btn-sm" style="padding:6px 12px;">' + p + '</button>';
+        }
+    }
+
+    controles += '<button onclick="renderizarPaginaIssues(' + (pagina + 1) + ')" class="btn btn-sm" style="' + (pagina === totalPaginas ? estiloDesabilitado : estiloAtivo) + '"' + (pagina === totalPaginas ? ' disabled' : '') + '>Próxima →</button>';
+
+    controles += '</div></div>';
+    divPag.innerHTML = controles;
+}
+
+// ============================================================
 // PUBLICAR NO CONFLUENCE
 // ============================================================
 
@@ -1227,6 +1282,11 @@ function abrirModalConfluence() {
         alert("Execute uma auditoria primeiro antes de publicar no Confluence.");
         return;
     }
+    // Pré-carregar token salvo no navegador (válido por ~1 ano)
+    const tokenSalvo = localStorage.getItem("confluence_token");
+    if (tokenSalvo) {
+        document.getElementById("confluence-token").value = tokenSalvo;
+    }
     document.getElementById("modal-confluence").style.display = "flex";
     document.getElementById("status-confluence").innerHTML = "";
 }
@@ -1234,6 +1294,47 @@ function abrirModalConfluence() {
 function fecharModalConfluence() {
     document.getElementById("modal-confluence").style.display = "none";
 }
+
+// ============================================================
+// CAPTURAR GRÁFICOS COMO IMAGENS (PNG base64)
+// ============================================================
+
+function capturarGraficos() {
+    const nomes = {
+        "chart-status": "Grafico - Por Status",
+        "chart-tipo": "Grafico - Por Tipo",
+        "chart-prioridade": "Grafico - Por Prioridade",
+        "chart-responsavel": "Grafico - Por Responsavel",
+        "chart-throughput-run": "Grafico - Throughput Run Chart",
+        "chart-cycle-time": "Grafico - Cycle Time",
+        "chart-cycle-scatter": "Grafico - Cycle Time Scatter",
+    };
+    const graficos = [];
+    for (const id in chartInstances) {
+        const chart = chartInstances[id];
+        if (!chart || !chart.canvas) continue;
+        try {
+            const canvas = chart.canvas;
+            // Desenhar em canvas temporário com fundo branco
+            // (fundo transparente fica ilegível no Confluence)
+            const temp = document.createElement("canvas");
+            temp.width = canvas.width;
+            temp.height = canvas.height;
+            const ctx = temp.getContext("2d");
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, temp.width, temp.height);
+            ctx.drawImage(canvas, 0, 0);
+            graficos.push({ nome: (nomes[id] || id) + ".png", imagem: temp.toDataURL("image/png") });
+        } catch (e) {
+            console.warn("Não foi possível capturar o gráfico " + id, e);
+        }
+    }
+    return graficos;
+}
+
+// ============================================================
+// PUBLICAR AUDITORIA NO CONFLUENCE
+// ============================================================
 
 async function publicarConfluence() {
     const tokenConfluence = document.getElementById("confluence-token").value.trim();
@@ -1266,14 +1367,22 @@ async function publicarConfluence() {
                 release: release,
                 jql: ultimoDadosAuditoria.jql || "",
                 titulo: titulo,
+                graficos: capturarGraficos(),
             }),
         });
         const data = await resp.json();
 
         if (data.sucesso) {
+            // Salvar token no navegador para não precisar digitar novamente (válido por ~1 ano)
+            if (tokenConfluence) {
+                localStorage.setItem("confluence_token", tokenConfluence);
+            }
             const acaoTxt = data.acao === "atualizada" ? "atualizada" : "criada";
+            const anexosTxt = data.anexos && data.anexos.length > 0
+                ? " (" + data.anexos.length + " gráfico(s) anexado(s))"
+                : "";
             mostrarStatus("status-confluence",
-                "✅ Página " + acaoTxt + " com sucesso!<br>" +
+                "✅ Página " + acaoTxt + " com sucesso!" + anexosTxt + "<br>" +
                 '<a href="' + data.link + '" target="_blank" style="color:#006d77;">🔗 Abrir página no Confluence</a>',
                 "success");
         } else {
@@ -2405,3 +2514,4 @@ function limparFiltroCycleTime() {
     // Recriar o gráfico com todos os dados
     gerarGraficoCycleTime(modoCycleTimeAtual);
 }
+

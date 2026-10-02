@@ -509,6 +509,7 @@ def confluence_publicar():
     release = data.get("release", "")
     jql = data.get("jql", "")
     titulo = data.get("titulo", "")
+    graficos = data.get("graficos", [])
     space_key = data.get("space_key")
     parent_id = data.get("parent_id")
 
@@ -517,7 +518,7 @@ def confluence_publicar():
 
     resultado = publicar_auditoria(
         dados, estatisticas, total, projeto, release, jql, token_confluence,
-        space_key=space_key, parent_id=parent_id, titulo=titulo,
+        space_key=space_key, parent_id=parent_id, titulo=titulo, graficos=graficos,
     )
 
     if resultado.get("sucesso"):
