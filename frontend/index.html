@@ -1,0 +1,248 @@
+~
+!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automação Jira - Samsung</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ====== TELA DE LOGIN ====== -->
+<div id="tela-login" class="tela-login">
+    <div class="login-card">
+        <h1>🔐 Automação Jira</h1>
+        <p style="color:#888;margin:10px 0 20px;">Jira Server/DC - Samsung</p>
+        <p style="color:#666;font-size:0.9em;margin-bottom:15px;">
+            Cole seu Personal Access Token do Jira para acessar.
+        </p>
+        <input type="password" id="input-token" placeholder="Seu token do Jira" class="input-text" style="margin-bottom:10px;">
+        <button onclick="fazerLogin()" class="btn btn-primary" style="width:100%;">Entrar</button>
+        <div id="status-login" class="status-msg"></div>
+        <button onclick="esquecerToken()" class="btn btn-danger btn-sm" style="width:100%;margin-top:10px;display:none;" id="btn-esquecer">Esquecer Token</button>
+        <details style="margin-top:20px;color:#888;font-size:0.85em;">
+            <summary>Como gerar um token?</summary>
+            <p style="margin-top:10px;">
+                1. Acesse o <a href="https://jira-la.secext.samsung.net/secure/ViewProfile.jspa?selectedTab=com.atlassian.pats.pats-plugin:jira-user-personal-access-tokens" target="_blank" style="color:#0f3460;">link do Jira</a><br>
+                2. Clique em "Create Access Token"<br>
+                3. Dê um nome (ex: "Automação")<br>
+                4. Copie o token gerado<br>
+                5. Cole aqui acima
+            </p>
+        </details>
+    </div>
+</div>
+
+<!-- ====== APP PRINCIPAL (escondida até login) ====== -->
+<div id="app-principal" style="display:none;">
+
+<!-- ====== HEADER ====== -->
+<header>
+    <h1>🔧 Automação Jira</h1>
+    <p>Jira Server/DC - Samsung</p>
+    <div style="margin-top:10px;">
+        <span id="info-usuario" style="background:rgba(255,255,255,0.2);padding:5px 15px;border-radius:20px;font-size:0.85em;"></span>
+        <button onclick="toggleDarkMode()" class="btn btn-sm" style="margin-left:10px;background:rgba(255,255,255,0.2);color:#fff;" id="btn-dark-mode">🌙 Modo Noturno</button>
+        <button onclick="fazerLogout()" class="btn btn-danger btn-sm" style="margin-left:10px;">Sair</button>
+    </div>
+</header>
+
+<!-- ====== CONTEÚDO PRINCIPAL ====== -->
+<main>
+
+    <!-- ====== ABA: AUDITORIA ====== -->
+    <section id="secao-auditoria" class="card">
+        <h2>📊 Auditoria de Release</h2>
+        <p style="color:#666;margin-bottom:15px;">Coleta dados de todas as issues de uma release (Fix Version) para auditoria.</p>
+        <div class="caixa-coleta" style="background:linear-gradient(135deg,#f8fbfd,#e3f6f3); border:2px solid #006d77; border-radius:14px; padding:20px; margin:0 auto 15px auto; max-width:800px;">
+            <div class="form-row" style="align-items:flex-end; gap:15px; margin-bottom:0;">
+                <div class="form-group" style="flex:1; margin-bottom:0;">
+                    <label for="aud-projeto" style="color:#1b4965; font-weight:700;">📁 Projeto</label>
+                    <select id="aud-projeto" class="input-text" style="border-color:#1b4965;">
+                        <option value="BXBNG">BXBNG</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex:0.5; margin-bottom:0;">
+<button onclick="executarAuditoria()" class="btn btn-primary" style="white-space:nowrap; width:100%; padding:11px 16px;">🔍 Procurar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filtros-auditoria">
+            <h4 style="margin-bottom:10px;">🔎 Filtros (opcional)</h4>
+            <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
+                <button onclick="aplicarFiltroMensal()" class="btn btn-success btn-sm">📋 Filtro Mensal (padrão)</button>
+                <button onclick="aplicarFiltroMesAnterior()" class="btn btn-primary btn-sm">📅 Mês Anterior</button>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="flex:1;">
+                    <label for="aud-release">🏷️ Release</label>
+                    <input type="text" id="aud-release" placeholder="Digite a release (ex: r26E) ou deixe vazio para sem release" class="input-text" value="">
+                </div>
+                <div class="form-group" style="flex:1;">
+                    <label for="filtro-labels">Labels</label>
+                    <select id="filtro-labels" class="input-text">
+                        <option value="">Todas as labels</option>
+                        <option value="dev">dev</option>
+                        <option value="qa">qa</option>
+                        <option value="VD">VD</option>
+                        <option value="DA">DA</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex:1;">
+                    <label for="filtro-issuetype">Tipo</label>
+                    <select id="filtro-issuetype" class="input-text">
+                        <option value="">Todos os tipos</option>
+                        <option value="Story Bug">Story Bug</option>
+                        <option value="Sub-task">Sub-task</option>
+                        <option value="Task">Task</option>
+                        <option value="Bug">Bug</option>
+                        <option value="Story">Story</option>
+                        <option value="Epic">Epic</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex:1;">
+                    <label for="filtro-priority">Prioridade</label>
+                    <select id="filtro-priority" class="input-text">
+                        <option value="">Todas as prioridades</option>
+                        <option value="Blocker">Blocker</option>
+                        <option value="Critical">Critical</option>
+                        <option value="Major">Major</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Minor">Minor</option>
+                        <option value="Trivial">Trivial</option>
+                        <option value="Lowest">Lowest</option>
+                        <option value="Low">Low</option>
+                        <option value="Highest">Highest</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="flex:1;">
+                    <label for="filtro-assignee">Responsável</label>
+                    <input type="text" id="filtro-assignee" placeholder="ex: joao.silva" class="input-text">
+                </div>
+                <div class="form-group" style="flex:1;">
+                    <label for="filtro-status">Status</label>
+                    <select id="filtro-status" class="input-text">
+                        <option value="">Todos os status</option>
+                        <option value="Closed">Closed</option>
+                        <option value="Open">Open</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="To Do">To Do</option>
+                        <option value="Done">Done</option>
+                        <option value="Reopened">Reopened</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex:1;">
+                    <label for="filtro-resolucao-excluir">Excluir Resolução</label>
+                    <select id="filtro-resolucao-excluir" class="input-text">
+                        <option value="">Não excluir</option>
+                        <option value="Canceled,Duplicate">Excluir Canceled e Duplicate</option>
+                        <option value="Canceled">Excluir apenas Canceled</option>
+                        <option value="Duplicate">Excluir apenas Duplicate</option>
+                        <option value="Won't Fix">Excluir Won't Fix</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="flex:1;">
+                    <label for="filtro-componente-excluir">Excluir Componente</label>
+                    <input type="text" id="filtro-componente-excluir" placeholder="ex: PDI" class="input-text">
+                </div>
+                <div class="form-group" style="flex:1;">
+                    <label for="filtro-labels-excluir">Excluir Label</label>
+                    <input type="text" id="filtro-labels-excluir" placeholder="ex: no_metrics" class="input-text">
+                </div>
+                <div class="form-group" style="flex:1;">
+                    <label for="filtro-order-by">Ordenar por</label>
+                    <select id="filtro-order-by" class="input-text">
+                        <option value="">Sem ordenação</option>
+                        <option value="issuetype">Tipo</option>
+                        <option value="priority">Prioridade</option>
+                        <option value="status">Status</option>
+                        <option value="assignee">Responsável</option>
+                        <option value="created DESC">Data Criação (recente)</option>
+                        <option value="resolutiondate DESC">Data Resolução (recente)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="flex:1;">
+                    <label for="filtro-res-data-inicio">Data de Resolução (início)</label>
+                    <input type="date" id="filtro-res-data-inicio" class="input-text">
+                </div>
+                <div class="form-group" style="flex:1;">
+                    <label for="filtro-res-data-fim">Data de Resolução (fim)</label>
+                    <input type="date" id="filtro-res-data-fim" class="input-text">
+                </div>
+                <div class="form-group" style="flex:1; display:flex; align-items:flex-end;">
+                    <button onclick="limparFiltros()" class="btn btn-danger btn-sm">Limpar Filtros</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="status-auditoria" class="status-msg"></div>
+
+        <!-- Estatísticas -->
+        <div id="area-estatisticas"></div>
+
+        <!-- Tabela de dados -->
+        <div id="area-dados-auditoria" style="margin-top:20px;"></div>
+
+        <!-- Botão de download CSV -->
+        <div id="area-download" style="margin-top:15px;"></div>
+    </section>
+
+</main>
+</div>
+
+<!-- ====== MODAL: PUBLICAR NO CONFLUENCE ====== -->
+<div id="modal-confluence" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:#fff; border-radius:14px; padding:30px; max-width:500px; width:90%; box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+        <h3 style="margin-top:0; color:#006d77;">📄 Publicar no Confluence</h3>
+        <p style="color:#666; font-size:0.9em; margin-bottom:15px;">
+            Os dados da auditoria serão publicados como uma página no espaço <strong>BXBNG</strong>,
+            sob a página <strong>BXBNG - Service Delivery Review</strong>.
+        </p>
+        <div class="form-group" style="margin-bottom:15px;">
+            <label for="confluence-token" style="font-weight:700; color:#1b4965;">🔑 Token do Confluence</label>
+            <input type="password" id="confluence-token" class="input-text" placeholder="Cole seu token do Confluence (PAT)" style="border-color:#1b4965;">
+            <small style="color:#999;">O token do Confluence pode ser diferente do token do Jira.</small>
+        </div>
+        <div class="form-group" style="margin-bottom:15px;">
+            <label for="confluence-titulo" style="font-weight:700; color:#1b4965;">📝 Título da Página (opcional)</label>
+            <input type="text" id="confluence-titulo" class="input-text" placeholder="Deixe vazio para usar o padrão" style="border-color:#1b4965;">
+        </div>
+        <div id="status-confluence" class="status-msg"></div>
+        <div style="display:flex; gap:10px; margin-top:15px;">
+            <button onclick="publicarConfluence()" class="btn btn-primary" style="flex:1;">📄 Publicar</button>
+            <button onclick="fecharModalConfluence()" class="btn btn-danger" style="flex:1;">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+    <!-- ====== MODAL: DETALHES DA ISSUE ====== -->
+    <div id="modal" class="modal" style="display:none;">
+        <div class="modal-conteudo">
+            <span class="modal-fechar" onclick="fecharModal()">&times;</span>
+            <h2 id="modal-titulo"></h2>
+            <div id="modal-corpo"></div>
+        </div>
+    </div>
+
+</main>
+
+<footer>
+    <p>Automação Jira - Desenvolvido com Flask + Python</p>
+</footer>
+
+</div><!-- fim app-principal -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<script src="script.js?v=56"></script>
+</body>
+</html>

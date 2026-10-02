@@ -1,0 +1,702 @@
+/* ============================================================
+   TELA DE LOGIN
+   ============================================================ */
+.tela-login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0d1b2a 0%, #1b4965 50%, #006d77 100%);
+    padding: 20px;
+}
+
+.login-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 45px;
+    max-width: 450px;
+    width: 100%;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4);
+    text-align: center;
+}
+
+.login-card h1 {
+    color: #1b4965;
+    font-size: 1.8em;
+    margin-bottom: 5px;
+}
+
+.login-card .input-text {
+    text-align: left;
+}
+
+.login-card details {
+    text-align: left;
+}
+
+.login-card summary {
+    cursor: pointer;
+    color: #1b4965;
+    font-weight: 600;
+}
+
+.login-card a {
+    text-decoration: none;
+    color: #006d77;
+}
+
+.login-card a:hover {
+    text-decoration: underline;
+}
+
+/* ============================================================
+   RESET E BASE
+   ============================================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f4f8;
+    color: #1b263b;
+    line-height: 1.6;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+header {
+    background: linear-gradient(135deg, #0d1b2a 0%, #1b4965 50%, #006d77 100%);
+    color: #fff;
+    padding: 35px 20px;
+    text-align: center;
+    box-shadow: 0 6px 20px rgba(0, 109, 119, 0.3);
+}
+
+header h1 {
+    font-size: 2em;
+    margin-bottom: 5px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+header p {
+    opacity: 0.85;
+    font-size: 0.95em;
+}
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+main {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e3e8ef;
+}
+
+.card h2 {
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 3px solid #006d77;
+    color: #1b263b;
+    font-size: 1.4em;
+}
+
+/* ============================================================
+   BOTÕES
+   ============================================================ */
+.btn {
+    padding: 12px 28px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 600;
+    transition: all 0.25s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #1b4965, #006d77);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 109, 119, 0.3);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #295d7e, #008a96);
+    box-shadow: 0 6px 18px rgba(0, 109, 119, 0.4);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #2a9d8f, #00b4a6);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(42, 157, 143, 0.3);
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #35b8a8, #00d4c4);
+    box-shadow: 0 6px 18px rgba(42, 157, 143, 0.4);
+}
+
+.btn-sm {
+    padding: 6px 14px;
+    font-size: 0.85em;
+    border-radius: 8px;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #e63946, #d62828);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3);
+}
+
+/* ============================================================
+   FORMULÁRIOS
+   ============================================================ */
+.form-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #1b263b;
+    font-size: 0.9em;
+}
+
+.input-text {
+    width: 100%;
+    padding: 11px 15px;
+    border: 2px solid #d4dde7;
+    border-radius: 10px;
+    font-size: 0.95em;
+    transition: all 0.2s;
+    background: #f8fbfd;
+}
+
+.input-text:focus {
+    outline: none;
+    border-color: #006d77;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(0, 109, 119, 0.12);
+}
+
+/* ============================================================
+   TABELA
+   ============================================================ */
+.tabela {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.tabela thead th {
+    background: linear-gradient(135deg, #1b4965, #006d77);
+    color: #fff;
+    padding: 14px 12px;
+    text-align: left;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tabela tbody tr {
+    border-bottom: 1px solid #eef2f7;
+    transition: background 0.15s;
+}
+
+.tabela tbody tr:hover {
+    background: #e3f6f3;
+}
+
+.tabela tbody td {
+    padding: 12px;
+    font-size: 0.9em;
+}
+
+/* ============================================================
+   BADGES DE STATUS
+   ============================================================ */
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 600;
+}
+
+.badge-todo {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.badge-progress {
+    background: #cce3ff;
+    color: #004085;
+}
+
+.badge-done {
+    background: #c8f7dc;
+    color: #006d4a;
+}
+
+.badge-default {
+    background: #e3e8ef;
+    color: #1b263b;
+}
+
+/* ============================================================
+   LISTA DE PROJETOS
+   ============================================================ */
+.lista-projetos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.projeto-card {
+    background: #f8fbfd;
+    border: 2px solid #d4dde7;
+    border-radius: 10px;
+    padding: 12px 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.projeto-card:hover {
+    border-color: #006d77;
+    background: #e3f6f3;
+    transform: translateY(-2px);
+}
+
+.projeto-card .key {
+    font-weight: 700;
+    color: #1b4965;
+}
+
+.projeto-card .name {
+    font-size: 0.85em;
+    color: #5c6b7a;
+}
+
+/* ============================================================
+   MENSAGENS DE STATUS
+   ============================================================ */
+.status-msg {
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 0.9em;
+    display: none;
+}
+
+.status-msg.show {
+    display: block;
+}
+
+.status-msg.success {
+    background: #c8f7dc;
+    color: #006d4a;
+    border: 1px solid #2a9d8f;
+}
+
+.status-msg.error {
+    background: #ffe0e0;
+    color: #d62828;
+    border: 1px solid #e63946;
+}
+
+.status-msg.loading {
+    background: #cce3ff;
+    color: #004085;
+    border: 1px solid #1b4965;
+}
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+.modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(13, 27, 42, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-conteudo {
+    background: #fff;
+    border-radius: 16px;
+    padding: 35px;
+    max-width: 700px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-fechar {
+    position: absolute;
+    top: 18px;
+    right: 22px;
+    font-size: 1.8em;
+    cursor: pointer;
+    color: #a0b0c0;
+    transition: color 0.2s;
+}
+
+.modal-fechar:hover {
+    color: #1b263b;
+}
+
+.modal-conteudo h2 {
+    margin-bottom: 20px;
+    color: #1b263b;
+}
+
+.detalhe-linha {
+    display: flex;
+    padding: 10px 0;
+    border-bottom: 1px solid #eef2f7;
+}
+
+.detalhe-label {
+    font-weight: 600;
+    width: 150px;
+    color: #5c6b7a;
+}
+
+.detalhe-valor {
+    flex: 1;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #a0b0c0;
+    font-size: 0.85em;
+}
+
+/* ============================================================
+   AUDITORIA - GRAFICOS DE PIZZA
+   ============================================================ */
+.charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    margin: 25px 0;
+}
+
+.chart-card {
+    background: #fff;
+    border: 1px solid #e3e8ef;
+    border-radius: 16px;
+    padding: 28px 24px;
+    text-align: center;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.25s ease;
+}
+
+.chart-card:hover {
+    box-shadow: 0 6px 20px rgba(0, 109, 119, 0.12);
+    transform: translateY(-3px);
+    border-color: #006d77;
+}
+
+.chart-card h4 {
+    color: #1b4965;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+    font-weight: 700;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e3f6f3;
+}
+
+.chart-card canvas {
+    max-height: 320px;
+}
+
+/* ============================================================
+   AUDITORIA - FILTROS
+   ============================================================ */
+.filtros-auditoria {
+    background: linear-gradient(135deg, #f8fbfd, #e3f6f3);
+    border: 1px solid #d4e8e3;
+    border-radius: 12px;
+    padding: 18px;
+    margin: 15px 0;
+}
+
+.filtros-auditoria h4 {
+    color: #006d77;
+    font-size: 0.95em;
+}
+
+/* ============================================================
+   AUDITORIA - ESTATÍSTICAS
+   ============================================================ */
+.stat-grid {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #1b4965, #006d77);
+    color: #fff;
+    border-radius: 14px;
+    padding: 22px 32px;
+    text-align: center;
+    min-width: 150px;
+    box-shadow: 0 6px 18px rgba(0, 109, 119, 0.3);
+}
+
+.stat-number {
+    font-size: 2.5em;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.85em;
+    opacity: 0.85;
+    margin-top: 5px;
+}
+
+/* ============================================================
+   MODO NOTURNO (DARK MODE)
+   ============================================================ */
+body.dark-mode {
+    background: #0d1b2a;
+    color: #e0e6ed;
+}
+
+body.dark-mode .card {
+    background: #1a2744;
+    border-color: #2a3a5c;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .card h2 {
+    color: #e0e6ed;
+    border-bottom-color: #006d77;
+}
+
+body.dark-mode .form-group label {
+    color: #b0c4d8;
+}
+
+body.dark-mode .input-text {
+    background: #0f1e36;
+    border-color: #2a3a5c;
+    color: #e0e6ed;
+}
+
+body.dark-mode .input-text:focus {
+    border-color: #006d77;
+    background: #152844;
+    box-shadow: 0 0 0 3px rgba(0, 109, 119, 0.2);
+}
+
+body.dark-mode .tabela thead th {
+    background: linear-gradient(135deg, #0f1e36, #006d77);
+}
+
+body.dark-mode .tabela tbody tr {
+    border-bottom-color: #2a3a5c;
+}
+
+body.dark-mode .tabela tbody tr:hover {
+    background: #152844;
+}
+
+body.dark-mode .tabela tbody td {
+    color: #e0e6ed;
+}
+
+body.dark-mode .filtros-auditoria {
+    background: linear-gradient(135deg, #0f1e36, #152844);
+    border-color: #2a3a5c;
+}
+
+body.dark-mode .filtros-auditoria h4 {
+    color: #4cc9f0;
+}
+
+body.dark-mode .chart-card {
+    background: #1a2744;
+    border-color: #2a3a5c;
+}
+
+body.dark-mode .chart-card h4 {
+    color: #4cc9f0;
+    border-bottom-color: #2a3a5c;
+}
+
+body.dark-mode .stat-card {
+    background: linear-gradient(135deg, #0f1e36, #006d77);
+}
+
+body.dark-mode .modal-conteudo {
+    background: #1a2744;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .modal-conteudo h2 {
+    color: #e0e6ed;
+}
+
+body.dark-mode .detalhe-label {
+    color: #8aa0b8;
+}
+
+body.dark-mode .detalhe-linha {
+    border-bottom-color: #2a3a5c;
+}
+
+body.dark-mode .status-msg.success {
+    background: #0d3b2e;
+    color: #55efc4;
+    border-color: #2a9d8f;
+}
+
+body.dark-mode .status-msg.error {
+    background: #3b0d0d;
+    color: #ff6b6b;
+    border-color: #e63946;
+}
+
+body.dark-mode .status-msg.loading {
+    background: #0d1e3b;
+    color: #74b9ff;
+    border-color: #1b4965;
+}
+
+body.dark-mode .badge-default {
+    background: #2a3a5c;
+    color: #e0e6ed;
+}
+
+/* ===== THROUGHPUT CARD ===== */
+.throughput-card {
+    background: #fff;
+    border: 1px solid #ddd;
+}
+
+body.dark-mode .throughput-card {
+    background: #1a2744;
+    border: 1px solid #2a3a5c;
+}
+
+body.dark-mode .throughput-card h3 {
+    color: #4cc9f0 !important;
+}
+
+body.dark-mode .throughput-card td {
+    color: #e0e6ed;
+}
+
+body.dark-mode .throughput-card tr[style*="background:#f8fbfd"] {
+    background: #0f1e36 !important;
+}
+
+body.dark-mode .throughput-card td[style*="color:#999"] {
+    color: #8aa0b8 !important;
+}
+
+body.dark-mode footer {
+    color: #5a6a82;
+}
+
+/* Caixa de Projeto/Release/Coletar */
+body.dark-mode .caixa-coleta {
+    background: linear-gradient(135deg, #0f1e36, #152844) !important;
+    border-color: #006d77 !important;
+}
+
+body.dark-mode .caixa-coleta label {
+    color: #4cc9f0 !important;
+}
+
+body.dark-mode .caixa-coleta select,
+body.dark-mode .caixa-coleta input {
+    background: #0f1e36 !important;
+    border-color: #2a3a5c !important;
+    color: #e0e6ed !important;
+}
+
+body.dark-mode .caixa-coleta select:focus,
+body.dark-mode .caixa-coleta input:focus {
+    border-color: #006d77 !important;
+    background: #152844 !important;
+}
+
+body.dark-mode p[style*="color:#666"] {
+    color: #8aa0b8 !important;
+}
+
+/* ============================================================
+   RESPONSIVO
+   ============================================================ */
+@media (max-width: 768px) {
+    .tabela {
+        font-size: 0.8em;
+    }
+
+    .tabela thead th {
+        padding: 8px 5px;
+    }
+
+    .tabela tbody td {
+        padding: 6px 5px;
+    }
+
+    .form-row {
+        flex-direction: column;
+    }
+
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+}

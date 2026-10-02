@@ -1,0 +1,53 @@
+# ============================================================
+# .gitignore - Automação Jira
+# ============================================================
+
+# Credenciais (NUNCA commitar)
+backend/.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Ambiente virtual
+venv/
+env/
+.venv/
+ENV/
+
+# Arquivos de saída
+*.csv
+*.xlsx
+auditoria_*.csv
+auditoria_*.xlsx
+
+# Arquivos temporários
+*.tmp
+*.temp
+git_log_temp.txt
+temp_*.txt
+
+# Imagens/screenshots
+*.png
+*.jpg
+*.jpeg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
