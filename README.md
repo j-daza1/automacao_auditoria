@@ -45,7 +45,7 @@ jira automacao/
 
 3. **Iniciar o servidor:**
    ```bash
-   python main.py
+   python app.py
    ```
 
 4. **Acessar no navegador:**
