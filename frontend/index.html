@@ -210,6 +210,17 @@
             <label for="confluence-token" style="font-weight:700; color:#1b4965;">🔑 Token do Confluence</label>
             <input type="password" id="confluence-token" class="input-text" placeholder="Cole seu token do Confluence (PAT)" style="border-color:#1b4965;">
             <small style="color:#999;">O token do Confluence pode ser diferente do token do Jira. Após a primeira publicação bem-sucedida, ele fica salvo neste navegador — não é preciso digitá-lo novamente.</small>
+            <details style="margin-top:10px;color:#888;font-size:0.85em;">
+                <summary>Como gerar um token do Confluence?</summary>
+                <p style="margin-top:10px;">
+                    1. Acesse o <a href="https://confluence-la.secext.samsung.net/users/viewmysettings.action" target="_blank" style="color:#006d77;">link do Confluence</a> (ou clique no seu avatar → <strong>Configurações</strong>)<br>
+                    2. Abra a aba <strong>"Personal Access Tokens"</strong><br>
+                    3. Clique em <strong>"Create token"</strong><br>
+                    4. Dê um nome (ex: "Automação Auditoria") e clique em <strong>"Create"</strong><br>
+                    5. Copie o token gerado (ele é exibido apenas uma vez)<br>
+                    6. Cole no campo acima
+                </p>
+            </details>
         </div>
         <div class="form-group" style="margin-bottom:15px;">
             <label for="confluence-titulo" style="font-weight:700; color:#1b4965;">📝 Título da Página (opcional)</label>
